@@ -4,9 +4,9 @@ namespace Server.Packets.Downstream {
     internal sealed class Round : Packet {
         public byte Id => 0x04;
 
-        public short RoundNumber;
+        public short RoundNumber { get; set; }
         public short QuestionLength => (short) Question.Length;
-        public string Question;
+        public string Question { get; set; }
 
         public Round() { }
         

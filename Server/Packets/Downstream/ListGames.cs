@@ -7,7 +7,7 @@ namespace Server.Packets.Downstream {
         public static byte Id => 0x02;
 
         public short NumGames => (short)SendGames.Count();
-        public IEnumerable<Game> SendGames = new List<Game>();
+        public IEnumerable<Game> SendGames { get; } = new List<Game>();
 
         public ListGames() { }
 
@@ -24,7 +24,8 @@ namespace Server.Packets.Downstream {
         }
 
         protected override byte[] Construct() {
-            var data = new List<byte>();
+            var data = new List<byte> { Id };
+
             data.AddRange(BitConverter.GetBytes(NumGames));
             SendGames.ToList().ForEach(game => { data.AddRange(game.GetInfo(InfoLevel.Basic)); });
 

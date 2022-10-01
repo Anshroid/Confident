@@ -4,9 +4,12 @@ namespace Server.Packets.Upstream {
     internal sealed class Answer : Packet {
         public byte Id => 0x06;
 
-        public short Lower;
-        public short Upper;
-        public short Range => (short) (Upper - Lower);
+        public short Lower { get; set; }
+        public short Upper { get; set; }
+        public short Range {
+            get { return (short)(Upper - Lower); }
+            set => _ = value;
+        }
 
         public Answer() { }
 

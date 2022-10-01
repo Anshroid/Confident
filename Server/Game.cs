@@ -6,13 +6,11 @@ using Server.Packets.Downstream;
 
 namespace Server {
     internal class Game {
-        public static readonly List<Game> AllGames = default;
+        public static readonly List<Game> AllGames = new List<Game>();
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfidentClient));
 
-        public readonly Dictionary<Guid, ConfidentClient> Players = default;
-        private readonly Dictionary<Guid, short> _score = default;
-        private readonly Dictionary<Guid, AnswerEntry> _answers = default;
+        public readonly Dictionary<Guid, ConfidentClient> Players = new Dictionary<Guid, ConfidentClient>();
         public Guid Id = Guid.NewGuid();
         public readonly bool Private;
         public bool Started;
@@ -33,8 +31,11 @@ namespace Server {
         public void Start() {
             Started = true;
             Logger.InfoFormat("Game {0} started", Id);
-            _score.Keys.ToList().ForEach(player => _score[player] = 0);
-            Players.Values.ToList().ForEach(player => player.Send(new GameStarted()));
+            Players.Values.ToList().ForEach(player => {
+                player.Score = 0;
+                player.Send(new GameStarted());
+            });
+
             Round();
         }
 
@@ -46,11 +47,14 @@ namespace Server {
             Players.Values.ToList().ForEach(player => player.Send(new Round(_roundNo, _question)));
         }
 
-        public void AddAnswer(Guid answerer, short lower, short upper, short range) {
-            _answers[answerer] = new AnswerEntry(lower, upper, range);
-            if (_answers.Count != Players.Count) return;
+        public void AddAnswer(ConfidentClient answerer, short lower, short upper, short range) {
+            answerer.Answer = new AnswerEntry(lower, upper, range);
+            if (Players.Values.All(player => player.Answer.ThisRound)) return;
 
-            Players.Values.ToList().ForEach(player => player.Send(new AllAnswered()));
+            Players.Values.ToList().ForEach(player => {
+                player.Send(new AllAnswered());
+                player.Answer.ThisRound = false;
+            });
 
             getAnswer:
             Console.Write("Game {0} Round {1}: Enter answer (question was {2}): ", Id, _roundNo, _question);
@@ -58,39 +62,73 @@ namespace Server {
             Console.Write("Game {0} Round {1}: Enter note (question was {2}): ", Id, _roundNo, _question);
             var note = Console.ReadLine();
             if (string.IsNullOrEmpty(answer)) goto getAnswer;
+            
             Mark(short.Parse(answer), note);
         }
 
         private void Mark(short answer, string note) {
-            var correct = _answers.Where(player =>
-                answer >= player.Value.Lower && answer <= player.Value.Upper).ToList();
-            
-            correct.Sort((answer1, answer2) => answer1.Value.Range - answer2.Value.Range);
+            var correct = Players.Values.Where(player =>
+                answer >= player.Answer.Lower && answer <= player.Answer.Upper).ToList();
 
-            List<KeyValuePair<Guid, AnswerEntry>> incorrect = default;
+            correct.Sort((answer1, answer2) => answer1.Answer.Range.CompareTo(answer2.Answer.Range));
+
+            var incorrect = new List<ConfidentClient>();
+            var tie = false;
             if (correct.Count() == Players.Count) {
-                incorrect.Add(correct.Aggregate((currentMax, next) =>
-                    next.Value.Range > currentMax.Value.Range ? next : currentMax));
+                tie = true;
+                incorrect.Add(correct.Last());
             }
             else {
-                incorrect = _answers.Except(correct).ToList();
+                incorrect.AddRange(Players.Values.Except(correct));
             }
-            
-            var best = correct.Aggregate((currentMin, next) => 
-                next.Value.Range < currentMin.Value.Range ? next : currentMin);
 
-            var scores = new Dictionary<Guid, short> {
-                [best.Key] = 3
-            };
-            
-            correct.Except(new[] {best}).ToList().ForEach(player => scores[player.Key] = 1);
-            // incorrect.ToList().ForEach(players.);
-            
-            // Players.Values.ToList().ForEach(player => player.Send(new EndRound)));
+            var best = correct.First();
+
+            var scores = new Dictionary<Guid, short>();
+
+            // Stack of overwrites (fun!)
+            // Since the best is also correct, but an incorrect could also be correct
+            correct.ForEach(player => scores[player.ClientId] = 1);
+            scores[best.ClientId] = 3;
+            incorrect.ForEach(player => scores[player.ClientId] = 0);
+
+            foreach (var score in scores) {
+                Players[score.Key].Score += score.Value;
+            }
+
+            Players.Values.ToList().ForEach(player => player.Send(new EndRound(scores, note, best.Answer, tie)));
+
+            CheckWins();
+        }
+
+        private void CheckWins() {
+            var winners = Players.Values.Where(player => player.Score >= 12).ToList();
+            winners.Sort((player1, player2) => player1.Score.CompareTo(player2.Score));
+            switch (winners.Count) {
+                case 0:
+                    Round();
+                    return;
+                case 1:
+                    Players.Values.ToList().ForEach(player => player.Send(new GameWon(winners.First().ClientId)));
+                    return;
+                default:
+                    if (winners[0].Score == winners[1].Score) {
+                        Players.Values.ToList().ForEach(player =>
+                            player.Send(new Overtime(winners.Select(winner => winner.ClientId))));
+                        Round();
+                    }
+                    else {
+                        Players.Values.ToList().ForEach(player => player.Send(new GameWon(winners.First().ClientId)));
+                    }
+
+                    return;
+            }
         }
 
         public IEnumerable<byte> GetInfo(InfoLevel level) {
-            return new byte[] { };
+            var data = new List<byte>();
+            data.AddRange(Id.ToByteArray());
+            return data;
         }
     }
 
@@ -99,15 +137,26 @@ namespace Server {
         Detailed
     }
 
+
     public struct AnswerEntry {
         public readonly short Lower;
         public readonly short Upper;
         public readonly short Range;
+        public bool ThisRound;
 
         public AnswerEntry(short lower, short upper, short range) {
             Lower = lower;
             Upper = upper;
             Range = range;
+            ThisRound = true;
+        }
+
+        public IEnumerable<byte> ToByteArray() {
+            var data = new List<byte>();
+            data.AddRange(BitConverter.GetBytes(Lower));
+            data.AddRange(BitConverter.GetBytes(Upper));
+            data.AddRange(BitConverter.GetBytes(Range));
+            return data;
         }
     }
 }

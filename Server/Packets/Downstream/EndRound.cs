@@ -1,16 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Server.Packets.Downstream {
     internal sealed class EndRound : Packet {
         public byte Id => 0x06;
         
         public short NumScores => (short) Scores.Count;
-        public Dictionary<Guid, short> Scores;
+        public Dictionary<Guid, short> Scores { get; set; }
         public short NoteLength => (short) Note.Length;
-        public string Note;
-        public AnswerEntry WinningAnswer;
-        public bool Tie;
+        public string Note { get; set; }
+        public AnswerEntry WinningAnswer { get; set; }
+        public bool Tie { get; set; }
 
         public EndRound() { }
 
@@ -31,6 +32,8 @@ namespace Server.Packets.Downstream {
 
         protected override byte[] Construct() {
             var data = new List<byte>();
+            
+            data.Add(Id);
 
             data.AddRange(BitConverter.GetBytes(NumScores));
 
@@ -40,7 +43,9 @@ namespace Server.Packets.Downstream {
             }
             
             data.AddRange(BitConverter.GetBytes(NoteLength));
-            data.AddRange(BitConverter.GetBytes(NoteLength));
+            data.AddRange(Encoding.Default.GetBytes(Note));
+            
+            data.AddRange(WinningAnswer.ToByteArray());
 
             return data.ToArray();
         }
