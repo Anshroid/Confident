@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Server.Packets.Downstream {
-    internal sealed class Round : Packet {
+namespace Packets.Downstream {
+    public sealed class Round : Packet {
         public byte Id => 0x04;
 
         public short RoundNumber { get; set; }

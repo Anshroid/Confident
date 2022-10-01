@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Server.Packets.Upstream {
-    internal sealed class JoinPrivateGame : Packet {
+namespace Packets.Upstream {
+    public sealed class JoinPrivateGame : Packet {
         public byte Id => 0x03;
 
         public JoinPrivateGame() { throw new NotImplementedException(); }

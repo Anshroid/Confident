@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Server.Packets.Upstream {
-    internal sealed class GetGames : Packet {
+namespace Packets.Upstream {
+    public sealed class GetGames : Packet {
         public static byte Id => 0x01;
 
         public GetGames() { }

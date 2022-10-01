@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Server.Packets.Upstream {
-    internal sealed class JoinGame : Packet {
+namespace Packets.Upstream {
+    public sealed class JoinGame : Packet {
         public byte Id => 0x02;
 
         public Guid GameId { get; set; }

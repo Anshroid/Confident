@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Server.Packets.Downstream {
-    internal sealed class ListGames : Packet {
+namespace Packets.Downstream {
+    public sealed class ListGames : Packet {
         public static byte Id => 0x02;
 
         public short NumGames => (short)SendGames.Count();
-        public IEnumerable<Game> SendGames { get; } = new List<Game>();
+        public IEnumerable<IEnumerable<byte>> SendGames { get; } = new List<List<byte>>();
 
         public ListGames() { }
 
@@ -15,7 +15,7 @@ namespace Server.Packets.Downstream {
             Deconstruct(data);
         }
 
-        public ListGames(IEnumerable<Game> games) {
+        public ListGames(IEnumerable<IEnumerable<byte>> games) {
             SendGames = games;
         }
 
@@ -27,7 +27,7 @@ namespace Server.Packets.Downstream {
             var data = new List<byte> { Id };
 
             data.AddRange(BitConverter.GetBytes(NumGames));
-            SendGames.ToList().ForEach(game => { data.AddRange(game.GetInfo(InfoLevel.Basic)); });
+            SendGames.ToList().ForEach(game => { data.AddRange(game); });
 
             return data.ToArray();
         }

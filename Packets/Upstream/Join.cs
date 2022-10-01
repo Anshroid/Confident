@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Server.Packets.Upstream {
-    internal sealed class Join : Packet {
+namespace Packets.Upstream {
+    public sealed class Join : Packet {
         public static byte Id => 0x00;
 
         public short NameLength { get; set; }

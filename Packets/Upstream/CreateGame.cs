@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Server.Packets.Upstream {
-    internal sealed class CreateGame : Packet {
+namespace Packets.Upstream {
+    public sealed class CreateGame : Packet {
         public byte Id => 0x04;
 
         public bool Private { get; set; }

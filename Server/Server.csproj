@@ -97,24 +97,6 @@
     <ItemGroup>
         <Compile Include="ConfidentClient.cs" />
         <Compile Include="Game.cs" />
-        <Compile Include="Packets\Downstream\AllAnswered.cs" />
-        <Compile Include="Packets\Downstream\EndRound.cs" />
-        <Compile Include="Packets\Downstream\GameStarted.cs" />
-        <Compile Include="Packets\Downstream\GameWon.cs" />
-        <Compile Include="Packets\Downstream\ListGames.cs" />
-        <Compile Include="Packets\Downstream\Joined.cs" />
-        <Compile Include="Packets\Downstream\Overtime.cs" />
-        <Compile Include="Packets\Downstream\Response.cs" />
-        <Compile Include="Packets\Downstream\Round.cs" />
-        <Compile Include="Packets\Packet.cs" />
-        <Compile Include="Packets\Upstream\Answer.cs" />
-        <Compile Include="Packets\Upstream\CreateGame.cs" />
-        <Compile Include="Packets\Upstream\GetGames.cs" />
-        <Compile Include="Packets\Upstream\Join.cs" />
-        <Compile Include="Packets\Upstream\JoinGame.cs" />
-        <Compile Include="Packets\Upstream\JoinPrivateGame.cs" />
-        <Compile Include="Packets\Upstream\StartGame.cs" />
-        <Compile Include="Packets\Upstream\Suspend.cs" />
         <Compile Include="Server.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>
@@ -123,6 +105,12 @@
     </ItemGroup>
     <ItemGroup>
       <Content Include="log4net.config.xml" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\Packets\Packets.csproj">
+        <Project>{8af973ce-1e82-4fb2-bc94-526ce60439aa}</Project>
+        <Name>Packets</Name>
+      </ProjectReference>
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

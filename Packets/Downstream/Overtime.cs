@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Server.Packets.Downstream {
-    internal sealed class Overtime : Packet {
+namespace Packets.Downstream {
+    public sealed class Overtime : Packet {
         public byte Id => 0x08;
 
         public short NumWinners => (short) Winners.Count();

@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Server.Packets.Downstream {
-    internal sealed class EndRound : Packet {
+namespace Packets.Downstream {
+    public sealed class EndRound : Packet {
         public byte Id => 0x06;
         
         public short NumScores => (short) Scores.Count;
@@ -48,6 +48,28 @@ namespace Server.Packets.Downstream {
             data.AddRange(WinningAnswer.ToByteArray());
 
             return data.ToArray();
+        }
+    }
+    
+    public struct AnswerEntry {
+        public readonly short Lower;
+        public readonly short Upper;
+        public readonly short Range;
+        public bool ThisRound;
+
+        public AnswerEntry(short lower, short upper, short range) {
+            Lower = lower;
+            Upper = upper;
+            Range = range;
+            ThisRound = true;
+        }
+
+        public IEnumerable<byte> ToByteArray() {
+            var data = new List<byte>();
+            data.AddRange(BitConverter.GetBytes(Lower));
+            data.AddRange(BitConverter.GetBytes(Upper));
+            data.AddRange(BitConverter.GetBytes(Range));
+            return data;
         }
     }
 }

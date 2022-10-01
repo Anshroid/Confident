@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Server.Packets {
-    internal abstract class Packet {
+namespace Packets {
+    public abstract class Packet {
         private static readonly Dictionary<Direction, Dictionary<byte, Type>> AllPackets =
             new Dictionary<Direction, Dictionary<byte, Type>> {
                 { Direction.Upstream, new Dictionary<byte, Type>() },
@@ -78,7 +78,7 @@ namespace Server.Packets {
         public static void RegisterAll() {
             var packets = typeof(Packet).Assembly;
             packets.GetTypes()
-                .Where(t => string.Equals(t.Namespace, "Server.Packets.Upstream"))
+                .Where(t => string.Equals(t.Namespace, "Packets.Upstream"))
                 .Where(t => t.BaseType == typeof(Packet))
                 .ToList()
                 .ForEach(packet => {
@@ -86,7 +86,7 @@ namespace Server.Packets {
                 });
 
             packets.GetTypes()
-                .Where(t => string.Equals(t.Namespace, "Server.Packets.Downstream"))
+                .Where(t => string.Equals(t.Namespace, "Packets.Downstream"))
                 .Where(t => t.BaseType == typeof(Packet))
                 .ToList()
                 .ForEach(packet => {
@@ -97,7 +97,7 @@ namespace Server.Packets {
         public static implicit operator byte[](Packet p) => p.Construct();
     }
 
-    internal enum Direction {
+    public enum Direction {
         Upstream,
         Downstream
     }

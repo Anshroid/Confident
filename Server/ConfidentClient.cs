@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using log4net;
-using Server.Packets;
-using Server.Packets.Downstream;
-using Server.Packets.Upstream;
+using Packets;
+using Packets.Downstream;
+using Packets.Upstream;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 // ReSharper disable UnusedVariable
@@ -53,7 +53,9 @@ namespace Server {
                     Send(new Joined(ClientId));
                     break;
                 case GetGames packet:
-                    Send(new ListGames(Game.AllGames.Where(game => game.Private != true && game.Started != true)));
+                    Send(new ListGames(
+                        Game.AllGames.Where(game => game.Private != true && game.Started != true)
+                            .Select(game => game.GetInfo(InfoLevel.Basic))));
                     break;
                 case JoinGame packet:
                     CurrentGame = Game.AllGames.Where(game => game.Id.Equals(packet.GameId)).ToList()[0];

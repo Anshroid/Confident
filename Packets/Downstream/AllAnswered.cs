@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Server.Packets.Downstream {
-    internal sealed class AllAnswered : Packet {
+namespace Packets.Downstream {
+    public sealed class AllAnswered : Packet {
         public byte Id => 0x05;
 
         public AllAnswered() { }

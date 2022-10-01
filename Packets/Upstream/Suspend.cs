@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Server.Packets.Upstream {
-    internal sealed class Suspend : Packet {
+namespace Packets.Upstream {
+    public sealed class Suspend : Packet {
         public byte Id => 0xFF;
 
         public Suspend() { }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-namespace Server.Packets.Downstream {
-    internal sealed class Response : Packet {
+namespace Packets.Downstream {
+    public sealed class Response : Packet {
         public static byte Id => 0x00;
 
         public bool Success { get; set; }
