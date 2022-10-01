@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Packets.Upstream;
 
 namespace Packets.Downstream {
     public sealed class EndRound : Packet {
@@ -48,28 +49,6 @@ namespace Packets.Downstream {
             data.AddRange(WinningAnswer.ToByteArray());
 
             return data.ToArray();
-        }
-    }
-    
-    public struct AnswerEntry {
-        public readonly short Lower;
-        public readonly short Upper;
-        public readonly short Range;
-        public bool ThisRound;
-
-        public AnswerEntry(short lower, short upper, short range) {
-            Lower = lower;
-            Upper = upper;
-            Range = range;
-            ThisRound = true;
-        }
-
-        public IEnumerable<byte> ToByteArray() {
-            var data = new List<byte>();
-            data.AddRange(BitConverter.GetBytes(Lower));
-            data.AddRange(BitConverter.GetBytes(Upper));
-            data.AddRange(BitConverter.GetBytes(Range));
-            return data;
         }
     }
 }
