@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace Server.Packets {
     internal abstract class Packet {
         private static readonly Dictionary<Direction, Dictionary<byte, Type>> AllPackets =
-            new Dictionary<Direction, Dictionary<byte, Type>>() {
+            new Dictionary<Direction, Dictionary<byte, Type>> {
                 { Direction.Upstream, new Dictionary<byte, Type>() },
                 { Direction.Downstream, new Dictionary<byte, Type>() }
             };
@@ -45,9 +44,7 @@ namespace Server.Packets {
         }
 
         protected virtual byte[] Construct() {
-            var packet = new List<byte>();
-
-            packet.Add((byte)GetType().GetProperty("Id")!.GetValue(null));
+            var packet = new List<byte> { (byte) GetType().GetProperty("Id")!.GetValue(null) };
 
             GetType().GetProperties()
                 .Where(info => info.Name != "Id")
@@ -98,9 +95,6 @@ namespace Server.Packets {
         }
 
         public static implicit operator byte[](Packet p) => p.Construct();
-
-        public static implicit operator byte(Packet p) =>
-            (byte)p.GetType().GetProperty("Id", BindingFlags.Instance)!.GetValue(null);
     }
 
     internal enum Direction {

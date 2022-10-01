@@ -4,7 +4,7 @@ namespace Server.Packets.Upstream {
     internal sealed class CreateGame : Packet {
         public byte Id => 0x04;
 
-        public bool Private;
+        public bool Private { get; set; }
 
         public CreateGame() { }
 

@@ -100,8 +100,10 @@
         <Compile Include="Packets\Downstream\AllAnswered.cs" />
         <Compile Include="Packets\Downstream\EndRound.cs" />
         <Compile Include="Packets\Downstream\GameStarted.cs" />
+        <Compile Include="Packets\Downstream\GameWon.cs" />
         <Compile Include="Packets\Downstream\ListGames.cs" />
         <Compile Include="Packets\Downstream\Joined.cs" />
+        <Compile Include="Packets\Downstream\Overtime.cs" />
         <Compile Include="Packets\Downstream\Response.cs" />
         <Compile Include="Packets\Downstream\Round.cs" />
         <Compile Include="Packets\Packet.cs" />
@@ -112,6 +114,7 @@
         <Compile Include="Packets\Upstream\JoinGame.cs" />
         <Compile Include="Packets\Upstream\JoinPrivateGame.cs" />
         <Compile Include="Packets\Upstream\StartGame.cs" />
+        <Compile Include="Packets\Upstream\Suspend.cs" />
         <Compile Include="Server.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>

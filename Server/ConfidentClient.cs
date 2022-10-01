@@ -7,17 +7,20 @@ using Server.Packets.Downstream;
 using Server.Packets.Upstream;
 using WebSocketSharp;
 using WebSocketSharp.Server;
+// ReSharper disable UnusedVariable
 
 namespace Server {
     internal class ConfidentClient : WebSocketBehavior {
-        public static readonly Dictionary<Guid, ConfidentClient> ClientList = new Dictionary<Guid, ConfidentClient>();
+        private static readonly Dictionary<Guid, ConfidentClient> ClientList = new Dictionary<Guid, ConfidentClient>();
 
         private static readonly ILog Logger = LogManager.GetLogger(typeof(ConfidentClient));
 
         public Guid ClientId;
-        public string Name = "";
+        private string _name = "";
 
-        private Game _currentGame = null;
+        private Game _currentGame;
+        public short Score;
+        public AnswerEntry Answer;
 
         public Game CurrentGame {
             get => _currentGame;
@@ -33,10 +36,11 @@ namespace Server {
         }
 
         protected override void OnMessage(MessageEventArgs e) {
-            Logger.InfoFormat("Recieving packet {0} from {1} [{2}]", BitConverter.ToString(e.RawData), ID, Name);
+            Logger.InfoFormat("Recieving packet {0} from {1} [{2}]", BitConverter.ToString(e.RawData), ID, _name);
 
             dynamic pack = Packet.Get(Direction.Upstream, e.RawData);
             switch (pack) {
+                case Suspend packet: break;
                 case Join packet:
                     if (ClientList.ContainsKey(ClientId)) {
                         Send(new Response(false));
@@ -44,7 +48,7 @@ namespace Server {
                     }
 
                     Logger.InfoFormat("Client joined: {0} with id {1}", packet.Name, ID);
-                    Name = packet.Name;
+                    _name = packet.Name;
                     ClientList.Add(ClientId, this);
                     Send(new Joined(ClientId));
                     break;
@@ -66,14 +70,15 @@ namespace Server {
                     Send(new Response(true));
                     break;
                 case Answer packet:
-                    CurrentGame.AddAnswer(ClientId, packet.Lower, packet.Upper, packet.Range);
+                    CurrentGame.AddAnswer(this, packet.Lower, packet.Upper, packet.Range);
                     break;
             }
         }
 
         protected override void OnClose(CloseEventArgs e) {
-            Logger.InfoFormat("Client {0} [{1}] disconnected: {2}", ID, Name, e.Reason);
+            Logger.InfoFormat("Client {0} [{1}] disconnected: {2}", ID, _name, e.Reason);
             ClientList.Remove(ClientId);
+            CurrentGame.Players.Remove(ClientId);
         }
 
         public void Send(Packet data) {

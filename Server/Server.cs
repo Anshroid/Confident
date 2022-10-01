@@ -33,8 +33,12 @@ namespace Server {
                 return;
             }
 
-            Console.ReadKey(true);
-            Log.Info("Stopping server...");
+            try {
+                while (true) { }
+            }
+            catch (Exception) {
+                Log.Info("Stopping server...");
+            }
         }
     }
 }
